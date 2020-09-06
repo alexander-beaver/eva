@@ -1,0 +1,4 @@
+/node_modules/
+deepspeech-0.8.0-models.pbmm
+deepspeech-0.8.0-models.scorer
+/.idea/
