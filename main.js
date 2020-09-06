@@ -1,9 +1,35 @@
+
 const DeepSpeech = require('deepspeech');
 const VAD = require('node-vad');
 const mic = require('mic');
 const fs = require('fs');
 const wav = require('wav');
 const Speaker = require('speaker');
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Process Data
+ */
+class DataProcess{
+    static processRequest(request) {
+        console.log(request)
+
+    }
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 let DEEPSPEECH_MODEL; // path to deepspeech model directory
 if (process.env.DEEPSPEECH_MODEL) {
@@ -21,6 +47,11 @@ let SILENCE_THRESHOLD = 200; // how many milliseconds of inactivity before proce
 const VAD_MODE = VAD.Mode.VERY_AGGRESSIVE;
 const vad = new VAD(VAD_MODE);
 
+/**
+ * Loads the deepspeech models into memory for analysis
+ * @param modelDir
+ * @returns {Model}
+ */
 function createModel(modelDir) {
     let modelPath = modelDir + '.pbmm';
     let scorerPath = modelDir + '.scorer';
@@ -39,6 +70,11 @@ let endTimeout = null;
 let silenceBuffers = [];
 let firstChunkVoice = false;
 
+/**
+ * Takes an audio stream and processes it to identify if a voice is present
+ * @param data
+ * @param callback
+ */
 function processAudioStream(data, callback) {
     vad.processAudio(data, 16000).then((res) => {
         if (firstChunkVoice) {
@@ -72,6 +108,12 @@ function processAudioStream(data, callback) {
     },SILENCE_THRESHOLD*3);
 }
 
+/**
+ * Runs when the user stops speaking
+ *
+ * Tells the app to begin processing the data
+ * @param callback
+ */
 function endAudioStream(callback) {
     console.log('[end]');
     let results = intermediateDecode();
@@ -82,6 +124,9 @@ function endAudioStream(callback) {
     }
 }
 
+/**
+ * Resets the audio stream when something goes wrong
+ */
 function resetAudioStream() {
     clearTimeout(endTimeout);
     console.log('[reset]');
@@ -89,6 +134,12 @@ function resetAudioStream() {
     recordedChunks = 0;
     silenceStart = null;
 }
+
+/**
+ * Processes silence data to identify when something needs to happen
+ * @param data
+ * @param callback
+ */
 
 function processSilence(data, callback) {
     if (recordedChunks > 0) { // recording is on
@@ -232,6 +283,7 @@ function onRecognize(results) {
     }
     else {
         console.log('recognized:', results);
+        DataProcess.processRequest(results.text)
     }
 }
 
